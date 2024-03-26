@@ -1,10 +1,10 @@
 # edsoa-example
 
-This is an example project for the EDSOA framework.
+This is a simple implementation of "Event-driven SOA".
 
 ## Introduction
 
-This project is an example project for the EDSOA framework. It demonstrates how to use the framework to create a microservice application. 
+This project is an example project for the EDSOA framework. Please see [知乎 - Event-driven SOA](https://zhuanlan.zhihu.com/p/687635384) for more details. 
 
 ## Setup
 
@@ -21,4 +21,4 @@ pip install conan
 ```bash
 conan install . --build=missing
 ```
-3. Open the project folder in Visual Studio and it will set up the project for you automatically
+3. Install CMake extension for Vision Studio and then open the project folder in Visual Studio and it will set up the project for you automatically (if you're not a Visual Studio user, just consider this as a normal CMake project)
