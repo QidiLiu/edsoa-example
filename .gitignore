@@ -1,0 +1,13 @@
+.vs
+.vscode
+.venv
+doc
+struct
+other
+out
+dist
+build
+backup
+__pycache__
+*.spec
+*.pyd

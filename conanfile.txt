@@ -1,0 +1,11 @@
+[requires]
+    boost/1.84.0
+    spdlog/1.13.0
+    inih/58
+
+[generators]
+    CMakeDeps
+    CMakeToolchain
+
+[layout]
+    cmake_layout
