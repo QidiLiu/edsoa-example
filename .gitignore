@@ -3,7 +3,6 @@
 .venv
 doc
 struct
-other
 out
 dist
 build
