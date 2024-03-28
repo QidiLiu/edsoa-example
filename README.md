@@ -8,7 +8,7 @@ This project is an example project for the EDSOA framework. Please see [知乎 -
 
 ## Architecture
 
-![Architecture](./other/img/Object_Model.excalidraw.png)
+![Architecture](./other/img/Arch.png)
 
 ## Setup
 
