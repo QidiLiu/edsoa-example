@@ -10,9 +10,13 @@ set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${PROJECT_ROOT})
 
+set(UTIL util)
+add_subdirectory(${PROJECT_ROOT}/core/${UTIL})
+
 add_executable(${MAIN})
-    add_subdirectory(${PROJECT_ROOT}/core/util)
+    target_sources(${MAIN} PRIVATE ${PROJECT_ROOT}/core/main.cc)
+    target_link_libraries(${MAIN} PUBLIC ${UTIL})
+
     add_subdirectory(${PROJECT_ROOT}/core/ExampleNode)
 
-    target_sources(${MAIN} PRIVATE ${PROJECT_ROOT}/core/main.cc)
 

@@ -6,6 +6,10 @@ This is a simple implementation of "Event-driven SOA".
 
 This project is an example project for the EDSOA framework. Please see [知乎 - Event-driven SOA](https://zhuanlan.zhihu.com/p/687635384) for more details. 
 
+## Architecture
+
+![Architecture](./other/img/Object_Model.excalidraw.png)
+
 ## Setup
 
 To set up the project, follow these steps:

@@ -1,22 +1,17 @@
-#include "core/util/util.h"
 #include "core/ExampleNode/ExampleNode.h"
 
 ExampleNode::ExampleNode(
-    std::shared_ptr<Secretary> init_secretary, int init_worker_priority,
-    int example_init_delay) :
-    ISimpleWorker(init_secretary, init_worker_priority) {
+    int init_worker_priority, int example_init_delay) :
+    ISimpleWorker(init_worker_priority) {
     this->example_var = 114514 + example_init_delay;
     this->example_delay = example_init_delay;
+
+    this->submitTask(std::bind(&ExampleNode::exampleInit, this));
 }
 
 //ExampleNode::~ExampleNode() {}
 
-void ExampleNode::exampleFunc() {
-    spdlog::info("node_{}.exampleFunc() called.", this->example_delay);
-}
-
-void ExampleNode::run() {
-
+void ExampleNode::exampleInit() {
     while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(this->example_delay));
 
@@ -29,6 +24,11 @@ void ExampleNode::run() {
         spdlog::info("node_{} has sent command to Topic_1.", this->example_delay);
     }
 }
+
+void ExampleNode::exampleFunc() {
+    spdlog::info("node_{}.exampleFunc() called.", this->example_delay);
+}
+
 
 void ExampleNode::receive(const std::string& in_info) {
     spdlog::info("node_{} has received command on Topic_1. in_info: {}", this->example_delay, in_info);
@@ -43,6 +43,6 @@ void ExampleNode::receive(const std::string& in_info) {
         // do something with boost::asio::post() like the code below
     }
 
-    boost::asio::post(*this->secretary->thread_pool_ptr, std::bind(&ExampleNode::exampleFunc, this));
+    this->submitTask(std::bind(&ExampleNode::exampleFunc, this));
 }
 
