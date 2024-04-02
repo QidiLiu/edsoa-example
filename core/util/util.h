@@ -33,7 +33,7 @@ public:
     //  ...: ...]
     std::map<std::string, std::queue<Message>> message_queues;
     std::queue<std::function<void()>> task_queue;
-    std::mutex mutex;
+    std::mutex mtx;
 
 protected:
 
@@ -44,6 +44,10 @@ protected:
     /// @param in_info the message content to send
     void send(const std::string& in_topic_name, const std::string& in_info);
 
+    /// @brief send a message to a topic
+    /// @param in_topic_name the topic to send to
+    /// @param in_priority the priority of the message
+    /// @param in_info the message content to send
     void send(const std::string& in_topic_name, int in_priority, const std::string& in_info);
 
     /// @brief submit a task to the task queue
@@ -84,10 +88,15 @@ struct Message {
     }
 };
 
+struct IData {
+    std::mutex mtx;
+};
+
 struct Topic {
     std::priority_queue<Message> messages;
     std::vector<std::shared_ptr<IWorker>> subscribers;
-    //std::mutex mutex;
+    std::map<std::string, std::shared_ptr<IData>> data_ptrs;
+    //std::mutex mtx;
     //std::condition_variable cond_var;
 };
 
@@ -107,6 +116,18 @@ public:
     /// @param init_topic_name the name of the topic to subscribe to
     void subscribe(std::shared_ptr<IWorker> init_worker_ptr, const std::string& init_topic_name);
 
+    /// @brief share data pointer to a topic
+    /// @param init_data_name data's name
+    /// @param init_ptr the data pointer to share
+    /// @param init_topic_name the topic to share to
+    void shareDataToTopic(const std::string& init_data_name, std::shared_ptr<IData> init_ptr, const std::string& init_topic_name);
+
+    /// @brief share data pointer to a node
+    /// @param in_data_name data's name
+    /// @param in_topic_name data's topic
+    /// @return the output data pointer
+    std::shared_ptr<IData> shareDataFromTopic(const std::string& in_data_name, const std::string& in_topic_name);
+
     /// @brief start the main loop
     void startMainLoop();
 
@@ -114,7 +135,7 @@ public:
 
 private:
 
-    std::unordered_map<std::string, Topic> topics;
+    std::map<std::string, Topic> topics;
     std::atomic<bool> main_loop_running_flag;
     std::queue<std::function<void()>> task_queue;
 
@@ -132,4 +153,3 @@ private:
 };
 
 #endif // UTIL_UTIL_H_
-
