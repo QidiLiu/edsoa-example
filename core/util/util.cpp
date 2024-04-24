@@ -15,7 +15,7 @@ void IWorker::send(const std::string& in_topic_name, const std::string& in_info)
         std::lock_guard<std::mutex> lock(this->mtx);
         this->message_queues[in_topic_name].push(Message{ this->worker_default_priority, in_info });
     } else {
-        spdlog::warn("Topic not subsribed: {}.", in_topic_name);
+        spdlog::warn("Topic not subscribed: {}.", in_topic_name);
     }
 }
 
@@ -24,7 +24,7 @@ void IWorker::send(const std::string& in_topic_name, int in_priority, const std:
         std::lock_guard<std::mutex> lock(this->mtx);
         this->message_queues[in_topic_name].push(Message{ in_priority, in_info });
     } else {
-        spdlog::warn("Topic not subsribed: {}.", in_topic_name);
+        spdlog::warn("Topic not subscribed: {}.", in_topic_name);
     }
 }
 
@@ -58,8 +58,6 @@ void Secretary::addTopic(const std::string& in_topic_name) {
         spdlog::warn("Topic already exists: {}.", in_topic_name);
     }
 }
-
-
 
 void Secretary::subscribe(std::shared_ptr<IWorker> init_worker_ptr, const std::string& init_topic_name) {
     this->topics[init_topic_name].subscribers.push_back(init_worker_ptr);
@@ -107,13 +105,21 @@ void Secretary::startMainLoop() {
 
             if (!topic.second.messages.empty()) {
                 this->distributeMessage(topic.second, topic.second.messages.top());
+
+                if (topic.second.messages.top().info == "STOP") {
+                    this->main_loop_running_flag.store(false);
+                    this->broadcastStopMessage();
+                    topic.second.messages.pop();
+                    break;
+                }
+
                 topic.second.messages.pop();
             }
 
             this->gatherTasks(topic.first);
-
-            if (!this->main_loop_running_flag.load()) { break; }
         }
+
+        if (!this->main_loop_running_flag.load()) { break; }
 
         // execute tasks
         while (!this->task_queue.empty()) {
@@ -134,7 +140,15 @@ void Secretary::gatherMessages(const std::string& in_topic_name) {
 
 void Secretary::distributeMessage(const Topic& in_topic, const Message& in_message) {
     for (std::shared_ptr<IWorker> subscriber : in_topic.subscribers) {
-        subscriber->receive(in_message.info);
+            subscriber->receive(in_message.info);
+    }
+}
+
+void Secretary::broadcastStopMessage() {
+    for (auto& topic : this->topics) {
+        for (std::shared_ptr<IWorker> subscriber : topic.second.subscribers) {
+            subscriber->receive("STOP");
+        }
     }
 }
 

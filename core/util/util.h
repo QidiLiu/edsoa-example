@@ -50,6 +50,8 @@ protected:
     /// @param in_info the message content to send
     void send(const std::string& in_topic_name, int in_priority, const std::string& in_info);
 
+    // TODO broadcast message to all topics: void broadcast(const std::string& in_info);
+
     /// @brief submit a task to the task queue
     /// @param in_task the task to submit
     void submitTask(const std::function<void()>& in_task);
@@ -148,6 +150,7 @@ private:
     /// @param in_message the message to distribute
     void distributeMessage(const Topic& in_topic, const Message& in_message);
 
+    void broadcastStopMessage();
 
     void gatherTasks(const std::string& in_topic_name);
 };
