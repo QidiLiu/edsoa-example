@@ -6,10 +6,6 @@ This is a simple implementation of "Event-driven SOA".
 
 This project is an example project for the EDSOA framework. Please see [知乎 - Event-driven SOA](https://zhuanlan.zhihu.com/p/687635384) for more details. 
 
-## Architecture
-
-![Architecture](./other/img/arch.png)
-
 ## Setup
 
 To set up the project, follow these steps:
@@ -29,8 +25,11 @@ conan install . --build=missing
 
 ## TODO
 
-- [ ] Use Abseil to implement multi-threading and logging
-- [ ] Simplify the data sharing mechanism
+- [x] Use Abseil to implement multi-threading and logging
+- [ ] Initialize the thread num properly for thread pool
+- [ ] Figure out wether an atomic bool is really needed to break out from while loop
+- [ ] Simplify the data sharing mechanism with template
+- [x] Optimize the CMake usage
 - [ ] Name two kinds of workers as "Worker" and "Pipeline", instead of "SimpleWorker" and "ComplexWorker"
 - [ ] Implement "Pipeline", which is similar to VTK pipeline
 - [ ] Implement a ROS2-Actor-like "Actor", which is parallel to the "Worker" and "Pipeline"

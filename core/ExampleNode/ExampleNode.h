@@ -1,9 +1,9 @@
 #ifndef EXAMPLENODE_EXAMPLENODE_H_
 #define EXAMPLENODE_EXAMPLENODE_H_
 
-#include "core/util/util.h"
+#include "util/util.h"
 
-class ExampleNode : public ISimpleWorker {
+class ExampleNode : public IWorker {
 
 public:
 

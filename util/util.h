@@ -3,13 +3,14 @@
 
 extern const bool DEBUGGING_FLAG;
 
-#include <map>
 #include <queue>
 #include <limits>
 
-#include <fmt/core.h>
-#include "boost/asio.hpp"
-#include "spdlog/spdlog.h"
+#include <absl/log/log.h>
+#include <absl/synchronization/mutex.h>
+#include <absl/synchronization/internal/thread_pool.h>
+#include <absl/container/flat_hash_map.h>
+#include <absl/container/inlined_vector.h>
 
 class Message;
 
@@ -24,16 +25,18 @@ public:
     IWorker(int init_worker_priority);
     IWorker();
 
-    virtual ~IWorker() {}
+    virtual ~IWorker() = default;
 
     virtual void receive(const std::string& in_info) = 0;
 
-    // [topic_name: (msg_1, msg_2, ...);
-    //  another_topic_name: (...);
-    //  ...: ...]
-    std::map<std::string, std::queue<Message>> message_queues;
+    //// [topic_name: (msg_1, msg_2, ...);
+    ////  another_topic_name: (...);
+    ////  ...: ...]
+    //std::map<std::string, std::queue<Message>> message_queues;
+    absl::flat_hash_map<std::string, std::queue<Message>> message_queues;
     std::queue<std::function<void()>> task_queue;
-    std::mutex mtx;
+    //std::mutex mtx;
+    absl::Mutex mtx;
 
 protected:
 
@@ -54,31 +57,31 @@ protected:
 
     /// @brief submit a task to the task queue
     /// @param in_task the task to submit
-    void submitTask(const std::function<void()>& in_task);
+    void submitTask(std::function<void()> in_task);
 
 };
 
 
-class ISimpleWorker : public IWorker {
+//class ISimpleWorker : public IWorker {
+//
+//public:
+//
+//    ISimpleWorker(int init_worker_priority) : IWorker(init_worker_priority) {}
+//    ISimpleWorker() : IWorker() {}
+//    virtual ~ISimpleWorker() {}
+//};
 
-public:
 
-    ISimpleWorker(int init_worker_priority) : IWorker(init_worker_priority) {}
-    ISimpleWorker() : IWorker() {}
-    virtual ~ISimpleWorker() {}
-};
-
-
-class IComplexWorker : public IWorker {
-
-public:
-
-    IComplexWorker(int init_worker_priority) : IWorker(init_worker_priority) {}
-    IComplexWorker() : IWorker() {}
-    virtual ~IComplexWorker() {}
-
-    virtual void start() = 0;
-};
+//class IComplexWorker : public IWorker {
+//
+//public:
+//
+//    IComplexWorker(int init_worker_priority) : IWorker(init_worker_priority) {}
+//    IComplexWorker() : IWorker() {}
+//    virtual ~IComplexWorker() {}
+//
+//    virtual void start() = 0;
+//};
 
 
 struct Message {
@@ -91,15 +94,13 @@ struct Message {
 };
 
 struct IData {
-    std::mutex mtx;
+    mutable absl::Mutex mtx;
 };
 
 struct Topic {
     std::priority_queue<Message> messages;
     std::vector<std::shared_ptr<IWorker>> subscribers;
-    std::map<std::string, std::shared_ptr<IData>> data_ptrs;
-    //std::mutex mtx;
-    //std::condition_variable cond_var;
+    absl::flat_hash_map<std::string, std::shared_ptr<IData>> data_ptrs;
 };
 
 class Secretary {
@@ -133,11 +134,11 @@ public:
     /// @brief start the main loop
     void startMainLoop();
 
-    std::shared_ptr<boost::asio::thread_pool> thread_pool_ptr;
+    std::shared_ptr<absl::synchronization_internal::ThreadPool> thread_pool;
 
 private:
 
-    std::map<std::string, Topic> topics;
+    absl::flat_hash_map<std::string, Topic> topics;
     std::atomic<bool> main_loop_running_flag;
     std::queue<std::function<void()>> task_queue;
 
