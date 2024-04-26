@@ -17,8 +17,6 @@ file(GLOB_RECURSE UTIL_SRC_FILES "${PROJECT_ROOT}/${UTIL}/*.h" "${PROJECT_ROOT}/
 add_library(${UTIL} ${UTIL_SRC_FILES})
     find_package(absl CONFIG REQUIRED)
     target_link_libraries(${UTIL} PUBLIC abseil::abseil)
-    #target_include_directories(${UTIL} PUBLIC absl_INCLUDE_DIRS)
-    #message("[DEBUG] absl_INCLUDE_DIRS: ${absl_INCLUDE_DIRS}")
 
 add_executable(${MAIN})
     set(MAIN_SRC ${PROJECT_ROOT}/core/main.cc)

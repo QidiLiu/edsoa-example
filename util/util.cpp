@@ -11,12 +11,6 @@ IWorker::IWorker() {
 }
 
 void IWorker::send(const std::string& in_topic_name, const std::string& in_info) {
-    //if (this->message_queues.find(in_topic_name) != this->message_queues.end()) {
-    //    std::lock_guard<std::mutex> lock(this->mtx);
-    //    this->message_queues[in_topic_name].push(Message{ this->worker_default_priority, in_info });
-    //} else {
-    //    spdlog::warn("Topic not subscribed: {}.", in_topic_name);
-    //}
     absl::MutexLock lock(&this->mtx);
     if (this->message_queues.contains(in_topic_name)) {
         this->message_queues[in_topic_name].push(Message{ this->worker_default_priority, in_info });
@@ -26,12 +20,6 @@ void IWorker::send(const std::string& in_topic_name, const std::string& in_info)
 }
 
 void IWorker::send(const std::string& in_topic_name, int in_priority, const std::string& in_info) {
-    //if (this->message_queues.find(in_topic_name) != this->message_queues.end()) {
-    //    std::lock_guard<std::mutex> lock(this->mtx);
-    //    this->message_queues[in_topic_name].push(Message{ in_priority, in_info });
-    //} else {
-    //    spdlog::warn("Topic not subscribed: {}.", in_topic_name);
-    //}
     absl::MutexLock lock(&this->mtx);
     if (this->message_queues.contains(in_topic_name)) {
         this->message_queues[in_topic_name].push(Message{ in_priority, in_info });
@@ -41,8 +29,6 @@ void IWorker::send(const std::string& in_topic_name, int in_priority, const std:
 }
 
 void IWorker::submitTask(std::function<void()> in_task) {
-    //std::lock_guard<std::mutex> lock(this->mtx);
-    //this->task_queue.push(in_task);
     absl::MutexLock lock(&mtx);
     this->task_queue.push(std::move(in_task));
 }
@@ -55,22 +41,9 @@ Secretary::Secretary() {
 
 Secretary::~Secretary() {
     this->main_loop_running_flag.store(false);
-    //this->thread_pool->join();
-
-    /*
-    for (auto& topic : this->topics) {
-        topic.second.cond_var.notify_all();
-    }
-    */
 }
 
 void Secretary::addTopic(const std::string& in_topic_name) {
-    //if (this->topics.find(in_topic_name) == this->topics.end()) {
-    //    this->topics[in_topic_name];
-    //    spdlog::info("Added topic: {}.", in_topic_name);
-    //} else {
-    //    spdlog::warn("Topic already exists: {}.", in_topic_name);
-    //}
     if (this->topics.contains(in_topic_name)) {
         LOG(WARNING) << "Topic already exists: " << in_topic_name;
     } else {
@@ -82,15 +55,6 @@ void Secretary::addTopic(const std::string& in_topic_name) {
 void Secretary::subscribe(std::shared_ptr<IWorker> init_worker_ptr, const std::string& init_topic_name) {
     this->topics[init_topic_name].subscribers.push_back(init_worker_ptr);
     absl::MutexLock lock(&init_worker_ptr->mtx);
-    //std::lock_guard<std::mutex> lock(init_worker_ptr->mtx);
-
-    //if (init_worker_ptr->message_queues.find(init_topic_name) == init_worker_ptr->message_queues.end()) {
-    //    init_worker_ptr->message_queues[init_topic_name];
-    //    //spdlog::info("Subscribed worker: {} to topic: {}.", init_worker_ptr->getWorkerName(), init_topic_name);
-    //    spdlog::info("Subscribed worker to topic: {}.", init_topic_name);
-    //} else {
-    //    spdlog::warn("Worker already subscribed to topic: {}.", init_topic_name);
-    //}
 
     if (init_worker_ptr->message_queues.contains(init_topic_name)) {
         LOG(WARNING) << "Worker already subscribed to topic: " << init_topic_name;
@@ -105,13 +69,6 @@ void Secretary::shareDataToTopic(
     std::shared_ptr<IData> init_ptr,
     const std::string& init_topic_name
 ) {
-    //if (this->topics.find(init_topic_name) == this->topics.end()) {
-    //    spdlog::warn("Topic not found: {}.", init_topic_name);
-    //} else {
-    //    this->topics[init_topic_name].data_ptrs[init_data_name] = init_ptr;
-    //    spdlog::info("Shared data pointer: {} to topic: {}.", init_data_name, init_topic_name);
-    //}
-
     if (this->topics.contains(init_topic_name)) {
         this->topics[init_topic_name].data_ptrs[init_data_name] = init_ptr;
         LOG(INFO) << "Shared data pointer: " << init_data_name << " to topic: " << init_topic_name;
@@ -121,16 +78,6 @@ void Secretary::shareDataToTopic(
 }
 
 std::shared_ptr<IData> Secretary::shareDataFromTopic(const std::string& in_data_name, const std::string& in_topic_name) {
-    //if (this->topics.find(in_topic_name) == this->topics.end()) {
-    //    spdlog::warn("Topic not found: {}.", in_topic_name);
-    //    return nullptr;
-    //} else if (this->topics[in_topic_name].data_ptrs.find(in_data_name) == this->topics[in_topic_name].data_ptrs.end()) {
-    //    spdlog::warn("Data pointer not found in topic: {}.", in_topic_name);
-    //    return nullptr;
-    //} else {
-    //    spdlog::info("Shared data pointer: {} from topic: {}.", in_data_name, in_topic_name);
-    //    return this->topics[in_topic_name].data_ptrs[in_data_name];
-    //}
     if (this->topics.contains(in_topic_name)) {
         auto& data_map = topics[in_topic_name].data_ptrs;
         if (data_map.contains(in_data_name)) {

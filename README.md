@@ -33,6 +33,11 @@ conan install . --build=missing
 - [ ] Name two kinds of workers as "Worker" and "Pipeline", instead of "SimpleWorker" and "ComplexWorker"
 - [ ] Implement "Pipeline", which is similar to VTK pipeline
 - [ ] Implement a ROS2-Actor-like "Actor", which is parallel to the "Worker" and "Pipeline"
-- [ ] Design a distributed system with multiple nodes (every node has its own "main loop")
-- [ ] Implement a "Broker" to handle communication between nodes
+- [ ] Develop a design pattern for extending the framework
+- [ ] Make some extensions for the framework, such as
+  - [ ] "ImGui+VTK" bundle
+  - [ ] gRPC-based middleware
+  - [ ] TensorRT-based inference engine
+  - [ ] RKNN-based inference engine
+  - [ ] Bluetooth-based middleware
 - [ ] Package the project as a library and publish it to conan-center
