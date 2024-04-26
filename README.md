@@ -25,11 +25,9 @@ conan install . --build=missing
 
 ## TODO
 
-- [x] Use Abseil to implement multi-threading and logging
 - [ ] Initialize the thread num properly for thread pool
 - [ ] Figure out wether an atomic bool is really needed to break out from while loop
 - [ ] Simplify the data sharing mechanism with template
-- [x] Optimize the CMake usage
 - [ ] Name two kinds of workers as "Worker" and "Pipeline", instead of "SimpleWorker" and "ComplexWorker"
 - [ ] Implement "Pipeline", which is similar to VTK pipeline
 - [ ] Implement a ROS2-Actor-like "Actor", which is parallel to the "Worker" and "Pipeline"

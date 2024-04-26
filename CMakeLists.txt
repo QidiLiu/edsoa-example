@@ -13,7 +13,7 @@ set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${PROJECT_ROOT})
 
 set(UTIL util)
-file(GLOB_RECURSE UTIL_SRC_FILES "${PROJECT_ROOT}/${UTIL}/*.h" "${PROJECT_ROOT}/${UTIL}/*.cpp")
+file(GLOB_RECURSE UTIL_SRC_FILES "${PROJECT_ROOT}/${UTIL}/*.h" "${PROJECT_ROOT}/${UTIL}/*.cc")
 add_library(${UTIL} ${UTIL_SRC_FILES})
     find_package(absl CONFIG REQUIRED)
     target_link_libraries(${UTIL} PUBLIC abseil::abseil)
@@ -32,7 +32,7 @@ foreach(CORE_MODULE_PATH ${CORE_MODULES})
     set(MODULE_DIR "${PROJECT_ROOT}/core/${MODULE_NAME}")
 
     # Construct module
-    file(GLOB_RECURSE SRC_FILES "${MODULE_DIR}/*.h" "${MODULE_DIR}/*.cpp")
+    file(GLOB_RECURSE SRC_FILES "${MODULE_DIR}/*.h" "${MODULE_DIR}/*.cc")
     add_library(${MODULE_NAME} ${SRC_FILES})
     target_link_libraries(${MODULE_NAME} PUBLIC ${UTIL})
 
