@@ -62,28 +62,6 @@ protected:
 };
 
 
-//class ISimpleWorker : public IWorker {
-//
-//public:
-//
-//    ISimpleWorker(int init_worker_priority) : IWorker(init_worker_priority) {}
-//    ISimpleWorker() : IWorker() {}
-//    virtual ~ISimpleWorker() {}
-//};
-
-
-//class IComplexWorker : public IWorker {
-//
-//public:
-//
-//    IComplexWorker(int init_worker_priority) : IWorker(init_worker_priority) {}
-//    IComplexWorker() : IWorker() {}
-//    virtual ~IComplexWorker() {}
-//
-//    virtual void start() = 0;
-//};
-
-
 struct Message {
     int priority;
     std::string info;
