@@ -10,3 +10,5 @@ backup
 __pycache__
 *.spec
 *.pyd
+
+CMakeUserPresets.json
