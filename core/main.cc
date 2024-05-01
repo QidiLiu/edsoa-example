@@ -8,12 +8,10 @@ int main() {
 
     std::shared_ptr<ExampleNode> node_1 = std::make_shared<ExampleNode>(0, 1);
     secretary->subscribe(node_1, "Topic_1");
-    //boost::asio::post(*secretary->thread_pool_ptr, std::bind(&ExampleNode::run, node_1));
 
     std::shared_ptr<ExampleNode> node_2 = std::make_shared<ExampleNode>(1, 2);
     secretary->subscribe(node_2, "Topic_1");
     secretary->subscribe(node_2, "Topic_2");
-    //boost::asio::post(*secretary->thread_pool_ptr, std::bind(&ExampleNode::run, node_2));
 
     secretary->startMainLoop();
 
