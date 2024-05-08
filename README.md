@@ -30,9 +30,8 @@ conan install . --build=missing --settings=build_type=Debug
 
 ## TODO
 
-- [ ] Initialize the thread num properly for thread pool
-- [ ] Figure out wether an atomic bool is really needed to break out from while loop
-- [ ] Simplify the data sharing mechanism with template
+- [ ] Refactor the code with absl::string_view and absl::Span
+- [ ] Optimize the multithreading mechanism
 - [ ] Name two kinds of workers as "Worker" and "Pipeline", instead of "SimpleWorker" and "ComplexWorker"
 - [ ] Implement "Pipeline", which is similar to VTK pipeline
 - [ ] Implement a ROS2-Actor-like "Actor", which is parallel to the "Worker" and "Pipeline"
