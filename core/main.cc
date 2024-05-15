@@ -1,4 +1,5 @@
 #include "util/util.h"
+#include "util/data/ExampleData.hpp"
 #include "core/ExampleNode/ExampleNode.h"
 
 int main() {

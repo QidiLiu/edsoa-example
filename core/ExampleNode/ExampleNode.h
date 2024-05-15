@@ -2,12 +2,7 @@
 #define EXAMPLENODE_EXAMPLENODE_H_
 
 #include "util/util.h"
-
-struct ExampleData : public IData {
-    int value;
-
-    ExampleData() : value(0) {}
-};
+#include "util/data/ExampleData.hpp"
 
 class ExampleNode : public IWorker {
 
