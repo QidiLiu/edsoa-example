@@ -13,6 +13,7 @@ extern const bool DEBUGGING_FLAG;
 #include <absl/container/inlined_vector.h>
 
 class Message;
+struct IData;
 
 
 /// @brief base class for all workers
@@ -26,6 +27,8 @@ public:
     IWorker();
 
     virtual ~IWorker() = default;
+
+    virtual void setData(const std::string& init_topic_name, IData* init_data_ptr) = 0;
 
     virtual void receive(const std::string& in_info) = 0;
 
@@ -73,41 +76,34 @@ struct Message {
 
 struct IData {
     mutable absl::Mutex mtx;
+
+    virtual ~IData() {}
 };
 
 struct Topic {
     std::priority_queue<Message> messages;
     std::vector<std::shared_ptr<IWorker>> subscribers;
-    absl::flat_hash_map<std::string, std::shared_ptr<IData>> data_ptrs;
+    IData* data;
+
+    Topic() : data(nullptr) {}
+    Topic(IData* init_data_ptr) : data(init_data_ptr) {}
 };
 
 class Secretary {
 
 public:
 
-    Secretary();
+    Secretary(int init_thread_num);
     ~Secretary();
 
     /// @brief add a new topic to the secretary
     /// @param in_topic_name the name of the new topic to add
-    void addTopic(const std::string& in_topic_name);
+    void addTopic(const std::string& in_topic_name, IData* in_data_ptr = nullptr);
 
     /// @brief subscribe a worker to a topic
     /// @param init_worker_ptr the worker to subscribe
     /// @param init_topic_name the name of the topic to subscribe to
     void subscribe(std::shared_ptr<IWorker> init_worker_ptr, const std::string& init_topic_name);
-
-    /// @brief share data pointer to a topic
-    /// @param init_data_name data's name
-    /// @param init_ptr the data pointer to share
-    /// @param init_topic_name the topic to share to
-    void shareDataToTopic(const std::string& init_data_name, std::shared_ptr<IData> init_ptr, const std::string& init_topic_name);
-
-    /// @brief share data pointer to a node
-    /// @param in_data_name data's name
-    /// @param in_topic_name data's topic
-    /// @return the output data pointer
-    std::shared_ptr<IData> shareDataFromTopic(const std::string& in_data_name, const std::string& in_topic_name);
 
     /// @brief start the main loop
     void startMainLoop();

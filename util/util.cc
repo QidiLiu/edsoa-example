@@ -34,20 +34,20 @@ void IWorker::submitTask(std::function<void()> in_task) {
 }
 
 
-Secretary::Secretary() {
+Secretary::Secretary(int init_thread_num) {
     this->main_loop_running_flag.store(false);
-    this->thread_pool = std::make_shared<absl::synchronization_internal::ThreadPool>(4); // TODO Initialize the thread num properly
+    this->thread_pool = std::make_shared<absl::synchronization_internal::ThreadPool>(init_thread_num);
 }
 
 Secretary::~Secretary() {
     this->main_loop_running_flag.store(false);
 }
 
-void Secretary::addTopic(const std::string& in_topic_name) {
+void Secretary::addTopic(const std::string& in_topic_name, IData* in_data_ptr) {
     if (this->topics.contains(in_topic_name)) {
         LOG(WARNING) << "Topic already exists: " << in_topic_name;
     } else {
-        this->topics[in_topic_name] = Topic();
+        this->topics[in_topic_name] = Topic(in_data_ptr);
         LOG(INFO) << "Added topic: " << in_topic_name;
     }
 }
@@ -60,39 +60,8 @@ void Secretary::subscribe(std::shared_ptr<IWorker> init_worker_ptr, const std::s
         LOG(WARNING) << "Worker already subscribed to topic: " << init_topic_name;
     } else {
         init_worker_ptr->message_queues[init_topic_name] = std::queue<Message>();
+        init_worker_ptr->setData(init_topic_name, this->topics[init_topic_name].data);
         LOG(INFO) << "Subscribed worker to topic: " << init_topic_name;
-    }
-}
-
-void Secretary::shareDataToTopic(
-    const std::string& init_data_name,
-    std::shared_ptr<IData> init_ptr,
-    const std::string& init_topic_name
-) {
-    if (this->topics.contains(init_topic_name)) {
-        this->topics[init_topic_name].data_ptrs[init_data_name] = init_ptr;
-        LOG(INFO) << "Shared data pointer: " << init_data_name << " to topic: " << init_topic_name;
-    } else {
-        LOG(WARNING) << "Topic not found: " << init_topic_name;
-    }
-}
-
-std::shared_ptr<IData> Secretary::shareDataFromTopic(const std::string& in_data_name, const std::string& in_topic_name) {
-    if (this->topics.contains(in_topic_name)) {
-        auto& data_map = topics[in_topic_name].data_ptrs;
-        if (data_map.contains(in_data_name)) {
-            LOG(INFO) << "Shared data pointer: " << in_data_name << "from topic" << in_topic_name;
-
-            return data_map[in_data_name];
-        } else {
-            LOG(WARNING) << "Data pointer not found in topic: " << in_topic_name;
-
-            return nullptr;
-        }
-    } else {
-        LOG(WARNING) << "Topic not found: " << in_topic_name;
-
-        return nullptr;
     }
 }
 
@@ -102,8 +71,8 @@ void Secretary::startMainLoop() {
 
     while (this->main_loop_running_flag.load()) {
         for (auto& topic_pair : this->topics) {
+            auto& topic = topic_pair.second;
             const std::string& topic_name = topic_pair.first;
-            Topic& topic = topic_pair.second;
 
             this->gatherMessages(topic_name);
 
@@ -151,8 +120,7 @@ void Secretary::distributeMessage(const Topic& in_topic, const Message& in_messa
 
 void Secretary::broadcastStopMessage() {
     for (auto& topic_pair : this->topics) {
-        Topic& topic = topic_pair.second;
-        for (std::shared_ptr<IWorker> subscriber : topic.subscribers) {
+        for (std::shared_ptr<IWorker> subscriber : topic_pair.second.subscribers) {
             subscriber->receive("STOP");
         }
     }

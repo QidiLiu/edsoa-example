@@ -1,5 +1,5 @@
 [requires]
-    abseil/20240116.2
+    abseil/20230125.3
 
 [generators]
     CMakeDeps

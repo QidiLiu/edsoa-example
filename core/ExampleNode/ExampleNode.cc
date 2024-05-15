@@ -5,6 +5,7 @@ ExampleNode::ExampleNode(
     IWorker(init_worker_priority) {
     this->example_var = 114514 + example_init_delay;
     this->example_delay = example_init_delay;
+    this->example_data = nullptr;
 
     this->submitTask(std::bind(&ExampleNode::exampleInit, this));
 }
@@ -29,13 +30,24 @@ void ExampleNode::exampleFunc() {
     LOG(INFO) << "node_" << this->example_delay << ".exampleFunc() called.";
 }
 
+void ExampleNode::setData(const std::string& init_topic_name, IData* init_data_ptr) {
+    if (init_topic_name == "example_data") {
+        ExampleData* casted_ptr = dynamic_cast<ExampleData*>(init_data_ptr);
+
+        if (casted_ptr == nullptr) {
+            LOG(ERROR) << "Failed by casting data pointer";
+        } else {
+            this->example_data = casted_ptr;
+        }
+    }
+}
 
 void ExampleNode::receive(const std::string& in_info) {
     LOG(INFO) << "node_" << this->example_delay << " has received command on Topic_1. in_info: " << in_info;
 
     
     if (in_info.empty()) {
-        // message is empty, do nothing (or maybe throw an exception)
+        LOG(ERROR) << "Received empty message";
         return;
     }
 

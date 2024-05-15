@@ -3,6 +3,12 @@
 
 #include "util/util.h"
 
+struct ExampleData : public IData {
+    int value;
+
+    ExampleData() : value(0) {}
+};
+
 class ExampleNode : public IWorker {
 
 public:
@@ -10,12 +16,18 @@ public:
     ExampleNode(int init_worker_priority, int example_init_delay);
     //~ExampleNode();
 
+    /// @brief [LOGIC] set custom data for your node
+    /// @param init_topic_name data source topic name
+    /// @param init_data_ptr data pointer
+    void setData(const std::string& init_topic_name, IData* init_data_ptr) override;
+
     /// @brief [LOGIC] message processing
     /// @param in_info input message
     void receive(const std::string& in_info) override;
 
 private:
 
+    ExampleData* example_data;
     int example_var;
     int example_delay;
 
