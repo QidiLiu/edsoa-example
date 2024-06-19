@@ -1,8 +1,6 @@
 #ifndef UTIL_UTIL_H_
 #define UTIL_UTIL_H_
 
-extern const bool DEBUGGING_FLAG;
-
 #include <queue>
 #include <limits>
 
@@ -11,6 +9,11 @@ extern const bool DEBUGGING_FLAG;
 #include <absl/synchronization/internal/thread_pool.h>
 #include <absl/container/flat_hash_map.h>
 #include <absl/container/inlined_vector.h>
+#include <ini.h>
+#include "INIReader.h"
+
+extern const INIReader INI_READER;
+extern const bool DEBUGGING_MODE;
 
 class Message;
 struct IData;

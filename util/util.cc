@@ -1,6 +1,7 @@
 #include "util/util.h"
 
-extern const bool DEBUGGING_FLAG = true;
+extern const INIReader INI_READER("../../meta/config/config.ini");
+extern const bool DEBUGGING_MODE = INI_READER.GetBoolean("DEFAULT", "DEBUGGING_MODE", false);
 
 IWorker::IWorker(int init_worker_priority) {
     this->worker_default_priority = init_worker_priority;
@@ -35,8 +36,17 @@ void IWorker::submitTask(std::function<void()> in_task) {
 
 
 Secretary::Secretary(int init_thread_num) {
+    if (INI_READER.ParseError() < 0) {
+        LOG(ERROR) << "Failed to parse config.ini";
+    }
+
+    if (DEBUGGING_MODE) {
+        LOG(INFO) << "Debugging mode is on.";
+    }
+
     this->main_loop_running_flag.store(false);
     this->thread_pool = std::make_shared<absl::synchronization_internal::ThreadPool>(init_thread_num);
+    this->addTopic("COMMON");
 }
 
 Secretary::~Secretary() {
@@ -55,6 +65,10 @@ void Secretary::addTopic(const std::string& in_topic_name, IData* in_data_ptr) {
 void Secretary::subscribe(std::shared_ptr<IWorker> init_worker_ptr, const std::string& init_topic_name) {
     this->topics[init_topic_name].subscribers.push_back(init_worker_ptr);
     absl::MutexLock lock(&init_worker_ptr->mtx);
+
+    if (!init_worker_ptr->message_queues.contains("COMMON")) {
+        init_worker_ptr->message_queues["COMMON"] = std::queue<Message>();
+    }
 
     if (init_worker_ptr->message_queues.contains(init_topic_name)) {
         LOG(WARNING) << "Worker already subscribed to topic: " << init_topic_name;
