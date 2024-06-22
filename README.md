@@ -37,7 +37,7 @@ conan install . --build=missing --settings=build_type=Debug
 - [ ] Implement a ROS2-Actor-like "Actor", which is parallel to the "Worker" and "Pipeline"
 - [ ] Develop a design pattern for extending the framework
 - [ ] Make some extensions for the framework, such as
-  - [ ] ".ini" file parser
+  - [x] ".ini" file parser
   - [ ] "ImGui+VTK" bundle
   - [ ] gRPC-based middleware
   - [ ] TensorRT-based inference engine

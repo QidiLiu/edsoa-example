@@ -68,6 +68,8 @@ void Secretary::subscribe(std::shared_ptr<IWorker> init_worker_ptr, const std::s
 
     if (!init_worker_ptr->message_queues.contains("COMMON")) {
         init_worker_ptr->message_queues["COMMON"] = std::queue<Message>();
+        this->topics["COMMON"].subscribers.push_back(init_worker_ptr);
+        LOG(INFO) << "Subscribed worker to topic: COMMON";
     }
 
     if (init_worker_ptr->message_queues.contains(init_topic_name)) {

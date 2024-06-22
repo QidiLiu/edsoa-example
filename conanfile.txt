@@ -1,5 +1,6 @@
 [requires]
     abseil/20230125.3
+    inih/58
 
 [generators]
     CMakeDeps
