@@ -3,8 +3,15 @@
 
 #include <queue>
 #include <limits>
+#include <cstdio>
+#include <filesystem>
 
+#include <absl/log/globals.h>
+#include <absl/log/initialize.h>
 #include <absl/log/log.h>
+#include <absl/log/log_sink.h>
+#include <absl/log/log_sink_registry.h>
+#include <absl/strings/str_format.h>
 #include <absl/synchronization/mutex.h>
 #include <absl/synchronization/internal/thread_pool.h>
 #include <absl/container/flat_hash_map.h>
@@ -68,6 +75,23 @@ protected:
 };
 
 
+class FileLogSink : public absl::LogSink {
+public:
+
+    FileLogSink();
+    ~FileLogSink();
+
+    void Send(const absl::LogEntry& in_entry) override;
+
+private:
+
+    bool logging_in_terminal_flag;
+    bool logging_in_file_flag;
+    FILE* log_file;
+    int utc_offset;
+    absl::TimeZone local_time_zone;
+};
+
 struct Message {
     int priority;
     std::string info;
@@ -115,6 +139,7 @@ public:
 
 private:
 
+    FileLogSink file_log_sink;
     absl::flat_hash_map<std::string, Topic> topics;
     std::atomic<bool> main_loop_running_flag;
     std::queue<std::function<void()>> task_queue;
@@ -132,5 +157,6 @@ private:
 
     void gatherTasks(const std::string& in_topic_name);
 };
+
 
 #endif // UTIL_UTIL_H_

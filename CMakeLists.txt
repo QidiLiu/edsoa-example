@@ -5,6 +5,8 @@ add_compile_options(-D_WIN32_WINNT=0x0A00)
 
 set(MAIN edsoa-example)
 project(${MAIN} C CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${PROJECT_ROOT})

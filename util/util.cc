@@ -35,6 +35,38 @@ void IWorker::submitTask(std::function<void()> in_task) {
 }
 
 
+FileLogSink::FileLogSink() : utc_offset(8), log_file(nullptr) {
+    absl::EnableLogPrefix(false);
+    absl::AddLogSink(this);
+    absl::InitializeLog();
+
+    this->local_time_zone = absl::FixedTimeZone(this->utc_offset * 60 * 60);
+    this->logging_in_terminal_flag = INI_READER.GetBoolean("DEFAULT", "LOGGING_IN_TERMINAL_FLAG", true);
+    this->logging_in_file_flag = INI_READER.GetBoolean("DEFAULT", "LOGGING_IN_FILE_FLAG", true);
+
+    if (this->logging_in_file_flag) {
+        std::string log_dir = INI_READER.Get("DEFAULT", "LOG_DIR", "./log");
+        if (!std::filesystem::exists(log_dir)) { std::filesystem::create_directory(log_dir); }
+        std::string log_name = absl::FormatTime("%Y%m%d-%H%M%S.log", absl::Now(), this->local_time_zone);
+        std::string log_path = log_dir + "/" + log_name;
+        this->log_file = fopen(log_path.c_str(), "a");
+        if (this->log_file == nullptr) { std::cerr << "[ERROR] Failed to open log file." << std::endl; }
+    }
+}
+
+FileLogSink::~FileLogSink() {
+    absl::RemoveLogSink(this);
+    fclose(this->log_file);
+}
+
+void FileLogSink::Send(const absl::LogEntry& in_entry) {
+    absl::string_view log_severity = absl::LogSeverityName(in_entry.log_severity());
+    std::string formatted_time = absl::FormatTime("%Y-%m-%d %H:%M:%E3S", in_entry.timestamp(), this->local_time_zone);
+    if (this->logging_in_terminal_flag) { absl::FPrintF(stdout,     "[%s]\t[%s]  %s  [%s|%d|tid=%d]\n", log_severity, formatted_time, in_entry.text_message(), in_entry.source_basename(), in_entry.source_line(), in_entry.tid()); }
+    if (this->logging_in_file_flag) { absl::FPrintF(this->log_file, "[%s]\t[%s]  %s  [%s|%d|tid=%d]\n", log_severity, formatted_time, in_entry.text_message(), in_entry.source_basename(), in_entry.source_line(), in_entry.tid()); }
+}
+
+
 Secretary::Secretary(int init_thread_num) {
     if (INI_READER.ParseError() < 0) {
         LOG(ERROR) << "Failed to parse config.ini";
@@ -151,4 +183,5 @@ void Secretary::gatherTasks(const std::string& in_topic_name) {
         }
     }
 }
+
 
